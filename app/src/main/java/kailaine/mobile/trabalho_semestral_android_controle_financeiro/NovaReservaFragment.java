@@ -16,9 +16,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.controller.MetaController;
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.controller.ReservaController;
@@ -38,19 +38,21 @@ public class NovaReservaFragment extends Fragment {
     private MetaController metaController;
     private List<MetaFinanceira> metas;
 
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     public NovaReservaFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.fragment_nova_reserva, container, false);
-        spMetaReserva = view.findViewById(R.id.spMetaReserva);
-        tvTitulo = view.findViewById(R.id.tvTitulo);
+        view = inflater.inflate(R.layout.fragment_nova_reserva, container, false);
+        spMetaReserva  = view.findViewById(R.id.spMetaReserva);
+        tvTitulo       = view.findViewById(R.id.tvTitulo);
         etValorReserva = view.findViewById(R.id.etValorReserva);
         btnSalvarReserva = view.findViewById(R.id.btnSalvarReserva);
 
-        reservaController = new ReservaController(new ReservaFinanceiraDao(getContext()));
-        metaController = new MetaController(new MetaFinanceiraDao(getContext()));
+        reservaController = new ReservaController(new ReservaFinanceiraDao());
+        metaController    = new MetaController(new MetaFinanceiraDao());
 
         preencheSpinner();
         btnSalvarReserva.setOnClickListener(op -> salvarReserva());
@@ -58,39 +60,79 @@ public class NovaReservaFragment extends Fragment {
         return view;
     }
 
+    // ------------------------------------------------------------------
+    // Salvar
+    // ------------------------------------------------------------------
+
     private void salvarReserva() {
         int spReserva = spMetaReserva.getSelectedItemPosition();
-        if(spReserva > 0){
-            ReservaFinanceira reserva = new ReservaFinanceira();
-            String valorReserva = etValorReserva.getText().toString();
-            Double valor = Double.parseDouble(valorReserva);
-            reserva.setValor(valor);
-            reserva.setMeta((MetaFinanceira) spMetaReserva.getSelectedItem());
-            reserva.getData();
-            reserva.getId();
-            try{
-               reservaController.inserir(reserva);
-                Toast.makeText(view.getContext(), reserva.toString(), Toast.LENGTH_LONG).show();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        if (spReserva == 0) {
+            Toast.makeText(view.getContext(), "Selecione uma meta.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String valorStr = etValorReserva.getText().toString();
+        if (valorStr.isEmpty()) {
+            Toast.makeText(view.getContext(), "Informe o valor da reserva.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double valor = Double.parseDouble(valorStr);
+        MetaFinanceira metaSelecionada = (MetaFinanceira) spMetaReserva.getSelectedItem();
+
+        ReservaFinanceira reserva = new ReservaFinanceira();
+        reserva.setValor(valor);
+        reserva.setMeta(metaSelecionada);
+        reserva.getData();
+
+        executor.execute(() -> {
+            try {
+                reservaController.inserir(reserva);
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(view.getContext(), reserva.toString(), Toast.LENGTH_LONG).show();
+                    etValorReserva.setText("");
+                });
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(view.getContext(), "Erro ao salvar reserva: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+                e.printStackTrace();
             }
-
-        }
-        etValorReserva.setText("");
+        });
     }
+
+    // ------------------------------------------------------------------
+    // Spinner
+    // ------------------------------------------------------------------
+
     private void preencheSpinner() {
-        MetaFinanceira m0 = new MetaFinanceira();
-        m0.setValorMeta(0);
-        m0.setNome("Selecione uma Meta");
+        executor.execute(() -> {
+            try {
+                List<MetaFinanceira> listaMetas = metaController.listar();
 
-        try {
-            metas = metaController.listar();
-            metas.add(0, m0);
+                MetaFinanceira m0 = new MetaFinanceira();
+                m0.setValorMeta(0);
+                m0.setNome("Selecione uma Meta");
+                listaMetas.add(0, m0);
 
-            ArrayAdapter<MetaFinanceira> mf = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, metas);
-            spMetaReserva.setAdapter(mf);
-        }catch (Exception e){
-            Toast.makeText(view.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+                metas = listaMetas;
+
+                requireActivity().runOnUiThread(() -> {
+                    ArrayAdapter<MetaFinanceira> adapter = new ArrayAdapter<>(
+                            view.getContext(),
+                            android.R.layout.simple_spinner_item,
+                            metas
+                    );
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spMetaReserva.setAdapter(adapter);
+                });
+
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(view.getContext(), "Erro ao carregar metas: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+                e.printStackTrace();
+            }
+        });
     }
 }

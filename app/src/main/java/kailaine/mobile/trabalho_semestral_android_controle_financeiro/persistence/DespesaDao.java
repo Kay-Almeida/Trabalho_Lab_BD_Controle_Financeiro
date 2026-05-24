@@ -8,6 +8,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,85 +19,96 @@ import kailaine.mobile.trabalho_semestral_android_controle_financeiro.model.Desp
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.model.ValorInvalidoException;
 
 public class DespesaDao implements ICRUDDao<Despesa>, IDespesaDAO {
-    private final Context context;
-    private GenericDAO gDao;
-    private SQLiteDatabase database;
 
-    public DespesaDao(Context context) {
-        this.context = context;
+    private Connection connection;
+
+    // ------------------------------------------------------------------
+    // Ciclo de vida da conexão
+    // ------------------------------------------------------------------
+
+    @Override
+    public IDespesaDAO open() throws SQLException {
+        connection = DatabaseConnection.getConnection();
+        return this;
     }
 
     @Override
+    public void close() {
+        DatabaseConnection.closeConnection();
+    }
+
+    // ------------------------------------------------------------------
+    // CRUD
+    // ------------------------------------------------------------------
+
+    @Override
     public void insert(Despesa despesa) throws SQLException {
-        ContentValues contentValues = getContentValues(despesa);
-        database.insert("despesa", null, contentValues);
+        String sql = "INSERT INTO despesa (valor, data) VALUES (?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDouble(1, despesa.getValor());
+            stmt.setString(2, despesa.getData().toString());
+            stmt.executeUpdate();
+        }
     }
 
     @Override
     public int update(Despesa despesa) throws SQLException {
-        ContentValues contentValues = getContentValues(despesa);
-        return database.update("despesa", contentValues, "id = ?", new String[]{String.valueOf(despesa.getId())});
+        String sql = "UPDATE despesa SET valor = ?, data = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDouble(1, despesa.getValor());
+            stmt.setString(2, despesa.getData().toString());
+            stmt.setInt(3, despesa.getId());
+            return stmt.executeUpdate();
+        }
     }
 
     @Override
     public void delete(Despesa despesa) throws SQLException {
-        database.delete("despesa", "id = ?", new String[]{String.valueOf(despesa.getId())});
+        String sql = "DELETE FROM despesa WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, despesa.getId());
+            stmt.executeUpdate();
+        }
     }
 
     @Override
     public Despesa buscarPorId(int id) throws SQLException {
-        Cursor cursor = database.query("despesa", null, "id = ?", new String[]{String.valueOf(id)}, null, null, null);
-        Despesa despesa = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            try {
-                despesa = getDespesaFromCursor(cursor);
-            } catch (ValorInvalidoException e) {
-                throw new RuntimeException(e);
-            } finally {
-                cursor.close();
+        String sql = "SELECT * FROM despesa WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return getDespesaFromResultSet(rs);
+                }
             }
         }
-        return despesa;
+        return null;
     }
 
     @Override
     public List<Despesa> findAll() throws SQLException {
         List<Despesa> despesas = new ArrayList<>();
-        Cursor cursor = database.query("despesa", null, null, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                try {
-                    despesas.add(getDespesaFromCursor(cursor));
-                } catch (ValorInvalidoException e) {
-                    throw new RuntimeException(e);
-                }
-            } while (cursor.moveToNext());
-            cursor.close();
+        String sql = "SELECT * FROM despesa";
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                despesas.add(getDespesaFromResultSet(rs));
+            }
         }
         return despesas;
     }
 
-    @Override
-    public IDespesaDAO open() throws SQLException {
-        gDao = new GenericDAO(context);
-        database = gDao.getWritableDatabase();
-        return this;    }
+    // ------------------------------------------------------------------
+    // Helper
+    // ------------------------------------------------------------------
 
-    @Override
-    public void close() {
-        gDao.close();
-    }
-    private static ContentValues getContentValues(Despesa despesa) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("valor", despesa.getValor());
-        contentValues.put("data", despesa.getData().toString());
-        return contentValues;
-    }
-    @SuppressLint({"Range", "NewApi"})
-    private static Despesa getDespesaFromCursor(Cursor cursor) throws ValorInvalidoException {
-        Despesa despesa = new Despesa();
-        despesa.setId(cursor.getInt(cursor.getColumnIndex("id")));
-        despesa.setValor(cursor.getDouble(cursor.getColumnIndex("valor")));
-        return despesa;
+    private static Despesa getDespesaFromResultSet(ResultSet rs) throws SQLException {
+            Despesa despesa = new Despesa();
+            despesa.setId(rs.getInt("id"));
+            despesa.setValor(rs.getDouble("valor"));
+            // Se o modelo tiver setData(), descomente:
+            // despesa.setData(rs.getString("data"));
+            return despesa;
+
     }
 }

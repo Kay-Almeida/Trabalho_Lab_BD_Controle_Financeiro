@@ -16,8 +16,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.controller.DespesaController;
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.controller.ReceitaController;
@@ -41,60 +42,64 @@ public class NovaEntradaFragment extends Fragment {
     public NovaEntradaFragment() {
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-         view = inflater.inflate(R.layout.fragment_nova_entrada, container, false);
+        view = inflater.inflate(R.layout.fragment_nova_entrada, container, false);
         btnSalvarEntrada = view.findViewById(R.id.btnSalvarEntrada);
-        etValorEntrada = view.findViewById(R.id.etValorEntrada);
-
-        textView = view.findViewById(R.id.textView);
-        textView2 = view.findViewById(R.id.textView2);
-
-        radioGroup = view.findViewById(R.id.radioGroup);
+        etValorEntrada   = view.findViewById(R.id.etValorEntrada);
+        textView         = view.findViewById(R.id.textView);
+        textView2        = view.findViewById(R.id.textView2);
+        radioGroup       = view.findViewById(R.id.radioGroup);
         rbDespesaHistorico = view.findViewById(R.id.rbDespesaHistorico);
         rbReceitaHistorico = view.findViewById(R.id.rbReceitaHistorico);
 
-        receitaController = new ReceitaController(new ReceitaDao(getContext()));
-        despesaController = new DespesaController(new DespesaDao(getContext()));
+        receitaController = new ReceitaController(new ReceitaDao());
+        despesaController = new DespesaController(new DespesaDao());
 
-        btnSalvarEntrada.setOnClickListener(op-> salvar());
+        btnSalvarEntrada.setOnClickListener(op -> salvar());
         return view;
     }
 
     private void salvar() {
         String valorEntrada = etValorEntrada.getText().toString();
-        double valor = Double.parseDouble(valorEntrada);
-        if(rbReceitaHistorico.isChecked()){
-            try {
-                Receita receita = new Receita(valor, new ArrayList<>());
-                receita.getData();
-                try {
-                    receitaController.inserir(receita);
-                    Toast.makeText(view.getContext(), receita.toString(), Toast.LENGTH_LONG).show();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            } catch (ValorInvalidoException e) {
-                throw new RuntimeException(e);
-            }
 
-        }else{
-            try {
-                Despesa despesa = new Despesa(valor, new ArrayList<>());
-                despesa.getData();
-                try {
-                    despesaController.inserir(despesa);
-                    Toast.makeText(view.getContext(), despesa.toString(), Toast.LENGTH_LONG).show();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            } catch (ValorInvalidoException e) {
-                throw new RuntimeException(e);
-            }
+        if (valorEntrada.isEmpty()) {
+            Toast.makeText(view.getContext(), "Informe um valor.", Toast.LENGTH_SHORT).show();
+            return;
         }
-        limpaCampos();
 
+        double valor = Double.parseDouble(valorEntrada);
+        boolean isReceita = rbReceitaHistorico.isChecked();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                String mensagem;
+                if (isReceita) {
+                    Receita receita = new Receita(valor, new ArrayList<>());
+                    receita.getData();
+                    receitaController.inserir(receita);
+                    mensagem = receita.toString();
+                } else {
+                    Despesa despesa = new Despesa(valor, new ArrayList<>());
+                    despesa.getData();
+                    despesaController.inserir(despesa);
+                    mensagem = despesa.toString();
+                }
+
+                String finalMensagem = mensagem;
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(view.getContext(), finalMensagem, Toast.LENGTH_LONG).show();
+                    limpaCampos();
+                });
+
+            } catch (ValorInvalidoException | java.sql.SQLException e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(view.getContext(), "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+                e.printStackTrace();
+            }
+        });
     }
 
     private void limpaCampos() {
