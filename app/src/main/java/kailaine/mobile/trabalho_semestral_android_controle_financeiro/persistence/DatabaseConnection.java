@@ -19,11 +19,11 @@ public class DatabaseConnection {
     // ---------------------------------------------------------------
     // Ajuste as constantes abaixo de acordo com o seu ambiente MySQL
     // ---------------------------------------------------------------
-    private static final String HOST     = "10.0.2.2";   // 10.0.2.2 aponta para o localhost do PC no emulador Android
-    private static final String PORT     = "3306";
-    private static final String DATABASE = "FinanceiroDB";
+    private static final String HOST     = "acela.proxy.rlwy.net";   // 10.0.2.2 aponta para o localhost do PC no emulador Android
+    private static final String PORT     = "10924";
+    private static final String DATABASE = "railway";
     private static final String USER     = "root";
-    private static final String PASSWORD = "123456";
+    private static final String PASSWORD = "lCcUqSeNOBVEGXZfLHhlgrZbhEfYkjuA";
 
     private static final String URL =
             "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE

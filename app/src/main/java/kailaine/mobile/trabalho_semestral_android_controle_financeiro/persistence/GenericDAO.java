@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class GenericDAO extends SQLiteOpenHelper {
 
-    private static final String DATABASE = "FinanceiroDB";
+    private static final String DATABASE = "railway";
     private static final int DATABASE_VER = 1;
 
     private static final String CREATE_TABLE_DESPESA = "CREATE TABLE despesa ( " +
