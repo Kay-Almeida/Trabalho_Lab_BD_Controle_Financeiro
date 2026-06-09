@@ -29,6 +29,7 @@ import kailaine.mobile.trabalho_semestral_android_controle_financeiro.model.Rece
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.model.ReservaFinanceira;
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.persistence.DespesaDao;
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.persistence.ReceitaDao;
+import kailaine.mobile.trabalho_semestral_android_controle_financeiro.persistence.RelatorioDao;
 import kailaine.mobile.trabalho_semestral_android_controle_financeiro.persistence.ReservaFinanceiraDao;
 
 public class HistoricoFragment extends Fragment {
@@ -38,6 +39,11 @@ public class HistoricoFragment extends Fragment {
     private TextView tvEditorEntrada, tvResultadoListarHistorico, tvHistorico;
     private RadioGroup radioGroup3;
     private RadioButton rbDespesaHistorico, rbReceitaHistorico, rbReservaHistorico;
+
+    // -- Novos elementos para a Stored Procedure --
+    private EditText etMesProcedure, etAnoProcedure;
+    private Button btnResumoMes;
+    private TextView tvResultadoProcedure;
 
     private DespesaController despesaController;
     private ReceitaController receitaController;
@@ -59,15 +65,21 @@ public class HistoricoFragment extends Fragment {
         etIDEntradaHistorico = view.findViewById(R.id.etIDEntradaHistorico);
         etValorHistorico     = view.findViewById(R.id.etValorHistorico);
 
-        tvEditorEntrada              = view.findViewById(R.id.tvEditorEntrada);
-        tvResultadoListarHistorico   = view.findViewById(R.id.tvResultadoListarHistorico);
-        tvHistorico                  = view.findViewById(R.id.tvHistorico);
+        tvEditorEntrada            = view.findViewById(R.id.tvEditorEntrada);
+        tvResultadoListarHistorico = view.findViewById(R.id.tvResultadoListarHistorico);
+        tvHistorico                = view.findViewById(R.id.tvHistorico);
         tvResultadoListarHistorico.setMovementMethod(new android.text.method.ScrollingMovementMethod());
 
-        radioGroup3          = view.findViewById(R.id.radioGroup3);
-        rbDespesaHistorico   = view.findViewById(R.id.rbDespesaHistorico);
-        rbReceitaHistorico   = view.findViewById(R.id.rbReceitaHistorico);
-        rbReservaHistorico   = view.findViewById(R.id.rbReservaHistorico);
+        radioGroup3        = view.findViewById(R.id.radioGroup3);
+        rbDespesaHistorico = view.findViewById(R.id.rbDespesaHistorico);
+        rbReceitaHistorico = view.findViewById(R.id.rbReceitaHistorico);
+        rbReservaHistorico = view.findViewById(R.id.rbReservaHistorico);
+
+        // Novos elementos - Stored Procedure
+        etMesProcedure      = view.findViewById(R.id.etMesProcedure);
+        etAnoProcedure      = view.findViewById(R.id.etAnoProcedure);
+        btnResumoMes        = view.findViewById(R.id.btnResumoMes);
+        tvResultadoProcedure = view.findViewById(R.id.tvResultadoProcedure);
 
         despesaController = new DespesaController(new DespesaDao());
         receitaController = new ReceitaController(new ReceitaDao());
@@ -76,9 +88,64 @@ public class HistoricoFragment extends Fragment {
         btnExcluirHistorico.setOnClickListener(op -> excluirEntrada());
         btnModificarHistorico.setOnClickListener(op -> editarEntrada());
         btnPesquisarHistorico.setOnClickListener(op -> pesquisarEntrada());
+        btnResumoMes.setOnClickListener(op -> chamarProcedure());
 
         listarTodasEntradas();
         return view;
+    }
+
+    // ------------------------------------------------------------------
+    // Stored Procedure — Resumo do Mês (NOVO)
+    // ------------------------------------------------------------------
+
+    @SuppressLint("DefaultLocale")
+    private void chamarProcedure() {
+        String mesStr = etMesProcedure.getText().toString();
+        String anoStr = etAnoProcedure.getText().toString();
+
+        if (mesStr.isEmpty() || anoStr.isEmpty()) {
+            Toast.makeText(view.getContext(), "Informe o mês e o ano.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int mes = Integer.parseInt(mesStr);
+        int ano = Integer.parseInt(anoStr);
+
+        if (mes < 1 || mes > 12) {
+            Toast.makeText(view.getContext(), "Mês inválido. Use valores de 1 a 12.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        executor.execute(() -> {
+            try {
+                RelatorioDao relatorioDao = new RelatorioDao();
+                relatorioDao.open();
+                double[] resultado = relatorioDao.chamarProcedureResumoFinanceiro(mes, ano);
+                relatorioDao.close();
+
+                double totalReceita = resultado[0];
+                double totalDespesa = resultado[1];
+                double saldo        = resultado[2];
+
+                String texto = String.format(
+                        "── Resumo %02d/%d ──\n" +
+                        "Receitas:  R$ %.2f\n" +
+                        "Despesas:  R$ %.2f\n" +
+                        "Saldo:     R$ %.2f",
+                        mes, ano, totalReceita, totalDespesa, saldo
+                );
+
+                requireActivity().runOnUiThread(() ->
+                        tvResultadoProcedure.setText(texto)
+                );
+
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(view.getContext(), "Erro ao chamar procedure: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+                e.printStackTrace();
+            }
+        });
     }
 
     // ------------------------------------------------------------------
@@ -133,9 +200,9 @@ public class HistoricoFragment extends Fragment {
             return;
         }
         int id = Integer.parseInt(idStr);
-        boolean isDespesa  = rbDespesaHistorico.isChecked();
-        boolean isReceita  = rbReceitaHistorico.isChecked();
-        boolean isReserva  = rbReservaHistorico.isChecked();
+        boolean isDespesa = rbDespesaHistorico.isChecked();
+        boolean isReceita = rbReceitaHistorico.isChecked();
+        boolean isReserva = rbReservaHistorico.isChecked();
 
         if (!isDespesa && !isReceita && !isReserva) {
             Toast.makeText(view.getContext(), "Escolha um tipo de entrada.", Toast.LENGTH_SHORT).show();
