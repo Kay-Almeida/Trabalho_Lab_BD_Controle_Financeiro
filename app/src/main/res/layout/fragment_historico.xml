@@ -1,162 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragmentHistorico"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".HistoricoFragment">
-
-    <Button
-        android:id="@+id/btnExcluirHistorico"
-        android:layout_width="195dp"
-        android:layout_height="48dp"
-        android:text="@string/excluir"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/tvResultadoListarHistorico"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.548" />
-
-    <Button
-        android:id="@+id/btnModificarHistorico"
-        android:layout_width="130dp"
-        android:layout_height="48dp"
-        android:text="@string/editar"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.857"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.48" />
-
-    <Button
-        android:id="@+id/btnPesquisarHistorico"
-        android:layout_width="130dp"
-        android:layout_height="48dp"
-        android:text="@string/pesquisar"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/tvResultadoListarHistorico"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.131"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.48" />
-
-    <EditText
-        android:id="@+id/etIDEntradaHistorico"
-        android:layout_width="305dp"
-        android:layout_height="48dp"
-        android:ems="10"
-        android:hint="@string/Id"
-        android:importantForAutofill="no"
-        android:inputType="number"
-        android:textColorHint="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.196" />
-
-    <TextView
-        android:id="@+id/tvEditorEntrada"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/editorentrada"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.119" />
-
-    <EditText
-        android:id="@+id/etValorHistorico"
-        android:layout_width="305dp"
-        android:layout_height="48dp"
-        android:ems="10"
-        android:hint="@string/valor"
-        android:importantForAutofill="no"
-        android:inputType="number"
-        android:textColorHint="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.368" />
-
-    <TextView
-        android:id="@+id/tvResultadoListarHistorico"
-        android:layout_width="380dp"
-        android:layout_height="238dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:overScrollMode="ifContentScrolls"
-        android:padding="8dp"
-        android:scrollbars="vertical"
-        android:scrollHorizontally="false"
-        android:textAlignment="center"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.516"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.993" />
-
-    <TextView
-        android:id="@+id/tvHistorico"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/historico"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.637" />
-
-    <RadioGroup
-        android:id="@+id/radioGroup3"
-        android:layout_width="373dp"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.28"
-        tools:ignore="MissingConstraints">
-
-        <RadioButton
-            android:id="@+id/rbDespesaHistorico"
-            android:layout_width="132dp"
-            android:layout_height="48dp"
-            android:text="@string/despesa"
-            android:textSize="20sp"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <RadioButton
-            android:id="@+id/rbReceitaHistorico"
-            android:layout_width="123dp"
-            android:layout_height="48dp"
-            android:text="@string/receita"
-            android:textSize="20sp"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <RadioButton
-            android:id="@+id/rbReservaHistorico"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/reserva"
-            android:textSize="20sp" />
-    </RadioGroup>
-
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/fragmentHistorico" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="24dp" tools:context=".HistoricoFragment">
+<!--  ── Título editor ──  -->
+<TextView android:id="@+id/tvEditorEntrada" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/editorentrada" android:textSize="20sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"/>
+<!--  ── ID ──  -->
+<EditText android:id="@+id/etIDEntradaHistorico" android:layout_width="305dp" android:layout_height="48dp" android:ems="10" android:hint="@string/Id" android:importantForAutofill="no" android:inputType="number" android:textColorHint="@color/black" android:textSize="20sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/tvEditorEntrada" android:layout_marginTop="8dp"/>
+<!--  ── RadioGroup ──  -->
+<RadioGroup android:id="@+id/radioGroup3" android:layout_width="373dp" android:layout_height="50dp" android:orientation="horizontal" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/etIDEntradaHistorico" android:layout_marginTop="8dp">
+<RadioButton android:id="@+id/rbDespesaHistorico" android:layout_width="132dp" android:layout_height="48dp" android:text="@string/despesa" android:textSize="20sp" tools:ignore="TouchTargetSizeCheck"/>
+<RadioButton android:id="@+id/rbReceitaHistorico" android:layout_width="123dp" android:layout_height="48dp" android:text="@string/receita" android:textSize="20sp" tools:ignore="TouchTargetSizeCheck"/>
+<RadioButton android:id="@+id/rbReservaHistorico" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/reserva" android:textSize="20sp"/>
+</RadioGroup>
+<!--  ── Valor ──  -->
+<EditText android:id="@+id/etValorHistorico" android:layout_width="305dp" android:layout_height="48dp" android:ems="10" android:hint="@string/valor" android:importantForAutofill="no" android:inputType="number" android:textColorHint="@color/black" android:textSize="20sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/radioGroup3" android:layout_marginTop="8dp"/>
+<!--  ── Botões pesquisar / editar / excluir ──  -->
+<Button android:id="@+id/btnPesquisarHistorico" android:layout_width="130dp" android:layout_height="48dp" android:text="@string/pesquisar" android:textSize="14sp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toStartOf="@+id/btnExcluirHistorico" app:layout_constraintTop_toBottomOf="@+id/etValorHistorico" android:layout_marginTop="8dp"/>
+<Button android:id="@+id/btnExcluirHistorico" android:layout_width="130dp" android:layout_height="48dp" android:text="@string/excluir" android:textSize="14sp" app:layout_constraintStart_toEndOf="@+id/btnPesquisarHistorico" app:layout_constraintEnd_toStartOf="@+id/btnModificarHistorico" app:layout_constraintTop_toBottomOf="@+id/etValorHistorico" android:layout_marginTop="8dp"/>
+<Button android:id="@+id/btnModificarHistorico" android:layout_width="130dp" android:layout_height="48dp" android:text="@string/editar" android:textSize="14sp" app:layout_constraintStart_toEndOf="@+id/btnExcluirHistorico" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toBottomOf="@+id/etValorHistorico" android:layout_marginTop="8dp"/>
+<!--  ── Título histórico + lista ──  -->
+<TextView android:id="@+id/tvHistorico" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/historico" android:textSize="20sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/btnExcluirHistorico" android:layout_marginTop="12dp"/>
+<TextView android:id="@+id/tvResultadoListarHistorico" android:layout_width="380dp" android:layout_height="220dp" android:focusable="true" android:focusableInTouchMode="true" android:overScrollMode="ifContentScrolls" android:padding="8dp" android:scrollbars="vertical" android:scrollHorizontally="false" android:textAlignment="center" android:textSize="16sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/tvHistorico" android:layout_marginTop="4dp"/>
+<!--  ════════════════════════════════════════
+             STORED PROCEDURE — Resumo do Mês
+             ════════════════════════════════════════  -->
+<TextView android:id="@+id/tvTituloProcedure" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Resumo por Mês (Procedure)" android:textSize="18sp" android:textStyle="bold" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/tvResultadoListarHistorico" android:layout_marginTop="16dp"/>
+<EditText android:id="@+id/etMesProcedure" android:layout_width="150dp" android:layout_height="48dp" android:hint="Mês (1-12)" android:importantForAutofill="no" android:inputType="number" android:textSize="16sp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toStartOf="@+id/etAnoProcedure" app:layout_constraintTop_toBottomOf="@+id/tvTituloProcedure" android:layout_marginTop="8dp" android:layout_marginStart="16dp" android:layout_marginEnd="8dp"/>
+<EditText android:id="@+id/etAnoProcedure" android:layout_width="150dp" android:layout_height="48dp" android:hint="Ano (ex: 2025)" android:importantForAutofill="no" android:inputType="number" android:textSize="16sp" app:layout_constraintStart_toEndOf="@+id/etMesProcedure" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toBottomOf="@+id/tvTituloProcedure" android:layout_marginTop="8dp" android:layout_marginEnd="16dp"/>
+<Button android:id="@+id/btnResumoMes" android:layout_width="305dp" android:layout_height="48dp" android:text="Resumo do Mês" android:textSize="16sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/etMesProcedure" android:layout_marginTop="8dp"/>
+<TextView android:id="@+id/tvResultadoProcedure" android:layout_width="305dp" android:layout_height="wrap_content" android:padding="8dp" android:textSize="15sp" android:fontFamily="monospace" android:background="#F0F0F0" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/btnResumoMes" android:layout_marginTop="8dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
